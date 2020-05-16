@@ -13,14 +13,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kenwu.tinnews.R;
+import com.kenwu.tinnews.databinding.FragmentHomeBinding;
+import com.kenwu.tinnews.model.Article;
 import com.kenwu.tinnews.repository.NewsRepository;
 import com.kenwu.tinnews.repository.NewsViewModelFactory;
+import com.mindorks.placeholderview.SwipeDecor;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class HomeFragment extends Fragment {
     private HomeViewModel viewModel;
+    private FragmentHomeBinding binding;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -31,18 +35,27 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.swipeView.getBuilder().setDisplayViewCount(3).setSwipeDecor(
+                new SwipeDecor().setPaddingTop(20).setRelativeScale(0.01f)
+        );
+        binding.rejectBtn.setOnClickListener(v -> binding.swipeView.doSwipe(false));
+        binding.acceptBtn.setOnClickListener(v -> binding.swipeView.doSwipe(true));
         NewsRepository repository = new NewsRepository(getContext());
         viewModel = new ViewModelProvider(this, new NewsViewModelFactory(repository)).get(HomeViewModel.class);
         viewModel.setCountryInput("us");
         viewModel.getTopHeadlines().observe(getViewLifecycleOwner(), newsResponse -> {
             if (newsResponse != null) {
-                Log.d("HomeFragment", newsResponse.toString());
+                for (Article article : newsResponse.articles) {
+                    TinNewsCard tinNewsCard = new TinNewsCard(article);
+                    binding.swipeView.addView(tinNewsCard);
+                }
             }
         });
     }
