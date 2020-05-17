@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Toast;
 
 import com.kenwu.tinnews.databinding.FragmentSearchBinding;
+import com.kenwu.tinnews.model.Article;
 import com.kenwu.tinnews.repository.NewsRepository;
 import com.kenwu.tinnews.repository.NewsViewModelFactory;
 
@@ -41,6 +43,17 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SearchNewsAdapter newsAdapter = new SearchNewsAdapter();
+        newsAdapter.setLikeListener(new SearchNewsAdapter.LikeListener() {
+            @Override
+            public void onLike(Article article) {
+                viewModel.setFavoriteArticleInput(article);
+            }
+
+            @Override
+            public void onClick(Article article) {
+
+            }
+        });
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         gridLayoutManager.setSpanSizeLookup(
                 new GridLayoutManager.SpanSizeLookup() {
@@ -70,5 +83,19 @@ public class SearchFragment extends Fragment {
                 newsAdapter.setArticles(newsResponse.articles);
             }
         });
+        viewModel.onFavorite().observe(getViewLifecycleOwner(), isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(requireActivity(), "Success", Toast.LENGTH_SHORT).show();
+                newsAdapter.notifyDataSetChanged();;
+            } else {
+                Toast.makeText(requireActivity(), "Have Liked Already", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewModel.onCancel();
     }
 }

@@ -24,10 +24,13 @@ public class TinNewsCard {
 
     @View(R.id.news_description)
     private TextView newsDescription;
-    private final Article article;
 
-    public TinNewsCard(Article article) {
+    private final Article article;
+    private final OnSwipeListener onSwipeListener;
+
+    public TinNewsCard(Article article, OnSwipeListener onSwipeListener) {
         this.article = article;
+        this.onSwipeListener = onSwipeListener;
     }
 
     @Resolve
@@ -45,15 +48,23 @@ public class TinNewsCard {
     @SwipeOut
     private void onSwipedOut() {
         Log.d("Event", "onSwipeOut");
+        onSwipeListener.onDislike(article);
     }
 
     @SwipeIn
     private void onSwipedIn() {
         Log.d("Event", "onSwipeIn");
+        article.favorite = true;
+        onSwipeListener.onLike(article);
     }
 
     @SwipeCancelState
     private void onSwipeCancelState() {
         Log.d("Event", "onSwipeCancelState");
+    }
+
+    interface OnSwipeListener {
+        void onLike(Article article);
+        void onDislike(Article article);
     }
 }

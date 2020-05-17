@@ -17,6 +17,7 @@ import java.util.List;
 
 public class SearchNewsAdapter extends RecyclerView.Adapter<SearchNewsAdapter.SearchNewsViewHolder> {
     private List<Article> articles = new LinkedList<>();
+    private LikeListener likeListener;
 
     @NonNull
     @Override
@@ -34,7 +35,16 @@ public class SearchNewsAdapter extends RecyclerView.Adapter<SearchNewsAdapter.Se
         } else {
             Picasso.get().load(urlToImage).into(holder.newsImage);
         }
-        holder.favorite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+        if (article.favorite) {
+            holder.favorite.setImageResource(R.drawable.ic_favorite_black_24dp);
+            holder.favorite.setOnClickListener(null);
+        } else {
+            holder.favorite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+            holder.favorite.setOnClickListener(v -> {
+                article.favorite = true;
+                likeListener.onLike(article);
+            });
+        }
     }
 
     @Override
@@ -48,6 +58,10 @@ public class SearchNewsAdapter extends RecyclerView.Adapter<SearchNewsAdapter.Se
         notifyDataSetChanged();
     }
 
+    public void setLikeListener(LikeListener likeListener) {
+        this.likeListener = likeListener;
+    }
+
     public static class SearchNewsViewHolder extends RecyclerView.ViewHolder {
         ImageView newsImage;
         ImageView favorite;
@@ -57,5 +71,10 @@ public class SearchNewsAdapter extends RecyclerView.Adapter<SearchNewsAdapter.Se
             newsImage = itemView.findViewById(R.id.image);
             favorite = itemView.findViewById(R.id.favorite);
         }
+    }
+
+    interface LikeListener {
+        void onLike(Article article);
+        void onClick(Article article);
     }
 }

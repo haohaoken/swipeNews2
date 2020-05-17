@@ -7,12 +7,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.kenwu.tinnews.R;
 import com.kenwu.tinnews.databinding.FragmentHomeBinding;
 import com.kenwu.tinnews.model.Article;
 import com.kenwu.tinnews.repository.NewsRepository;
@@ -22,7 +21,7 @@ import com.mindorks.placeholderview.SwipeDecor;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements TinNewsCard.OnSwipeListener {
     private HomeViewModel viewModel;
     private FragmentHomeBinding binding;
 
@@ -53,10 +52,35 @@ public class HomeFragment extends Fragment {
         viewModel.getTopHeadlines().observe(getViewLifecycleOwner(), newsResponse -> {
             if (newsResponse != null) {
                 for (Article article : newsResponse.articles) {
-                    TinNewsCard tinNewsCard = new TinNewsCard(article);
+                    TinNewsCard tinNewsCard = new TinNewsCard(article, this);
                     binding.swipeView.addView(tinNewsCard);
                 }
             }
         });
+        viewModel.onFavorite().observe(getViewLifecycleOwner(), isSuccess -> {
+            if (isSuccess) {
+                Toast.makeText(getContext(), "Success", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Have Liked Already", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onLike(Article article) {
+        viewModel.setFavoriteArticleInput(article);
+    }
+
+    @Override
+    public void onDislike(Article article) {
+        if (binding.swipeView.getChildCount() < 3) {
+            viewModel.setCountryInput("us");
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewModel.onCancel();
     }
 }
