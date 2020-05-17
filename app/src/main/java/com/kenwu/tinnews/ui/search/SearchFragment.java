@@ -6,13 +6,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
-import com.kenwu.tinnews.R;
 import com.kenwu.tinnews.databinding.FragmentSearchBinding;
 import com.kenwu.tinnews.repository.NewsRepository;
 import com.kenwu.tinnews.repository.NewsViewModelFactory;
@@ -40,12 +40,34 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        SearchNewsAdapter newsAdapter = new SearchNewsAdapter();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        gridLayoutManager.setSpanSizeLookup(
+                new GridLayoutManager.SpanSizeLookup() {
+                    @Override
+                    public int getSpanSize(int position) {
+                        return position == 0 ? 2 : 1;
+                    }
+                }
+        );
+        binding.recyclerView.setLayoutManager(gridLayoutManager);
+        binding.recyclerView.setAdapter(newsAdapter);
+        binding.searchView.setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    String searchText = binding.searchView.getText().toString();
+                    if (actionId == EditorInfo.IME_ACTION_DONE && !searchText.isEmpty()) {
+                        viewModel.setSearchInput(searchText);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+        );
         NewsRepository repository = new NewsRepository(getContext());
         viewModel = new ViewModelProvider(this, new NewsViewModelFactory(repository)).get(SearchViewModel.class);
-        viewModel.setSearchInput("Covid-19");
         viewModel.searchNews().observe(getViewLifecycleOwner(), newsResponse -> {
             if (newsResponse != null) {
-                Log.d("SearchFragment", newsResponse.toString());
+                newsAdapter.setArticles(newsResponse.articles);
             }
         });
     }
