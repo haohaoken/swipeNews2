@@ -15,12 +15,61 @@
         android:id="@+id/nav_search"
         android:name="com.kenwu.tinnews.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_title_search_to_detail"
+            app:destination="@id/nav_detail"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right">
+
+            <argument
+                android:name="article"
+                android:defaultValue="@null"
+                app:argType="com.kenwu.tinnews.model.Article"
+                app:nullable="true" />
+
+        </action>
+
+    </fragment>
 
     <fragment
         android:id="@+id/nav_save"
         android:name="com.kenwu.tinnews.ui.save.SaveFragment"
         android:label="@string/title_save"
-        tools:layout="@layout/fragment_save" />
+        tools:layout="@layout/fragment_save" >
+
+        <action
+            android:id="@+id/action_title_save_to_detail"
+            app:destination="@id/nav_detail"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right">
+
+            <argument
+                android:name="article"
+                android:defaultValue="@null"
+                app:argType="com.kenwu.tinnews.model.Article"
+                app:nullable="true" />
+
+        </action>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_detail"
+        android:name="com.kenwu.tinnews.ui.detail.SavedNewsDetailFragment"
+        android:label="@string/title_detail"
+        tools:layout="@layout/fragment_saved_news_detail">
+
+        <argument
+            android:name="article"
+            android:defaultValue="@null"
+            app:argType="com.kenwu.tinnews.model.Article"
+            app:nullable="true" />
+
+    </fragment>
 
 </navigation>

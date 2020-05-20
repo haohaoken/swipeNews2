@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
+import com.kenwu.tinnews.R;
 import com.kenwu.tinnews.databinding.FragmentSearchBinding;
 import com.kenwu.tinnews.model.Article;
 import com.kenwu.tinnews.repository.NewsRepository;
@@ -51,7 +53,9 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onClick(Article article) {
-
+                SearchFragmentDirections.ActionTitleSearchToDetail actionTitleSearchToDetail = SearchFragmentDirections.actionTitleSearchToDetail();
+                actionTitleSearchToDetail.setArticle(article);
+                NavHostFragment.findNavController(SearchFragment.this).navigate(actionTitleSearchToDetail);
             }
         });
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
